@@ -1,0 +1,10 @@
+services:
+  python:
+
+  postgre:
+
+  uvicorn:
+
+networks:
+  internal:
+    driver: bridge
