@@ -35,6 +35,18 @@ services:
     networks:
       - internal
 
+  # Optional pgAdmin instance if no third party DB manager is available, uncomment if needed
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5050:80"
+  #   networks:
+  #     - internal
+  #   depends_on:
+  #     - postgre
+
 volumes:
   pgdata:
 
