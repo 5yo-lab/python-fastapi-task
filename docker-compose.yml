@@ -15,8 +15,11 @@ services:
         ]
     ports:
       - "8000:8000"
+    restart: unless-stopped
     volumes:
       - .:/app
+    env_file:
+      - .env
     networks:
       - internal
     depends_on:
@@ -25,7 +28,23 @@ services:
 
   postgre:
     image: postgres:16
+    ports:
+      - "5432:5432"
     volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - internal
+
+volumes:
+  pgdata:
 
 networks:
   internal:
