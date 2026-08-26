@@ -18,7 +18,7 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(String(2048), nullable=True)
-    image: Mapped[str | None] = mapped_column(String(2045), nullable=True)
+    image: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     sku: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
