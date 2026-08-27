@@ -93,3 +93,9 @@ class ProductSearchParams(BaseModel):
         ):
             raise ValueError("min_price cannot be greater than max_price")
         return self
+
+class ProductSearchResponse(BaseModel):
+    items: list[ProductRead]
+    limit: int
+    offset: int
+    total: int
