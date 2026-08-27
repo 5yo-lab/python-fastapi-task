@@ -22,13 +22,6 @@ class ProductCreate(BaseModel):
             raise ValueError("Title must be at least 3 characters")
         return v
 
-    @field_validator("price")
-    @classmethod
-    def price_must_have_two_decimal_places_max(cls, v: Decimal) -> Decimal:
-        if v.as_tuple().exponent < -2:
-            raise ValueError("Price must have at most 2 decimal places")
-        return v
-
     @model_validator(mode="after")
     def description_required_for_expensive_items(self):
         if self.price > Decimal("100") and not self.description:
@@ -53,15 +46,6 @@ class ProductUpdate(BaseModel):
             raise ValueError("Title cannot be blank")
         if len(v) < 3:
             raise ValueError("Title must be at least 3 characters")
-        return v
-
-    @field_validator("price")
-    @classmethod
-    def price_must_have_two_decimal_places_max(cls, v: Decimal | None) -> Decimal | None:
-        if v is None:
-            return v
-        if v.as_tuple().exponent < -2:
-            raise ValueError("Price must have at most 2 decimal places")
         return v
 
     @model_validator(mode="after")
