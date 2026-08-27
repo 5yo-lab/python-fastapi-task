@@ -8,4 +8,9 @@ else
   echo "No alembic.ini found — skipping migrations."
 fi
 
+if [ "${SEED_ON_START:-true}" = "true" ]; then
+  echo "Seeding database..."
+  python -m app.seed
+fi
+
 exec "$@"

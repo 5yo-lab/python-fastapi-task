@@ -1,12 +1,11 @@
 import pytest
-from decimal import Decimal
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from app.database import Base, get_db
 from app.models.category import Category
-from app.models.product import Product
+from app.seed import seed
 from main import app as fastapi_app
 import app.models.category
 import app.models.product
@@ -50,33 +49,9 @@ def client(db):
 
 @pytest.fixture
 def seed_products(db):
-    electronics = Category(name="Electronics")
-    books = Category(name="Books")
-    db.add_all([electronics, books])
-    db.flush()
+    seed(db)
 
-    db.add_all(
-        [
-            Product(
-                title="Widget Pro",
-                sku="WDG-001",
-                price=Decimal("29.99"),
-                category_id=electronics.id,
-            ),
-            Product(
-                title="Widget Basic",
-                sku="WDG-002",
-                price=Decimal("19.99"),
-                category_id=electronics.id,
-            ),
-            Product(
-                title="Python Guide",
-                sku="BK-001",
-                price=Decimal("45.00"),
-                category_id=books.id,
-            ),
-        ]
-    )
-    db.commit()
+    electronics = db.scalars(select(Category).where(Category.name == "Electronics")).one()
+    books = db.scalars(select(Category).where(Category.name == "Books")).one()
 
     return {"electronics": electronics, "books": books}
