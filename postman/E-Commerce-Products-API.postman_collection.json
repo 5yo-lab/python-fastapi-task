@@ -1,0 +1,482 @@
+{
+  "info": {
+    "_postman_id": "ecommerce-products-api",
+    "name": "E-Commerce Products API",
+    "description": "Product and category service for the python-task assignment.\n\nSetup:\n1. Run `docker compose up --build`\n2. Import this collection\n3. Variable `baseUrl` defaults to http://localhost:8000\n\nDemo data is seeded on first boot (Electronics, Books, Laptops + 4 products).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "categoryId",
+      "value": "1"
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Root endpoint — confirms the API is running."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", ""]
+            },
+            "description": "Returns all categories sorted by name. Seeded: Books, Electronics, Laptops."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Returns category with parent and children. Try categoryId=1 (Electronics) to see Laptops as a child."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category (root)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Home & Garden\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", ""]
+            },
+            "description": "Create a top-level category (no parent)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category (child)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Shirts\",\n  \"parent_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", ""]
+            },
+            "description": "Create a subcategory. Replace parent_id with a valid category ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Category Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Partial update — send only fields to change. Can also set parent_id or parent_id: null to remove parent."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            },
+            "description": "Deletes a category. Returns 400 if the category has child categories or products."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", ""]
+            },
+            "description": "Returns all products sorted by title, each with nested category."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Get a single product with category details."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Gadget\",\n  \"sku\": \"GAD-001\",\n  \"price\": \"49.99\",\n  \"category_id\": 1,\n  \"description\": \"A handy new gadget\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", ""]
+            },
+            "description": "Create a product. Products over 100 require a description. SKU must be unique."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Expensive Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Luxury Watch\",\n  \"sku\": \"LUX-001\",\n  \"price\": \"250.00\",\n  \"category_id\": 1,\n  \"description\": \"Premium watch — description required when price exceeds 100\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", ""]
+            },
+            "description": "Demonstrates the business rule: price > 100 requires description."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Widget Pro v2\",\n  \"price\": \"34.99\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Partial update — only send fields to change."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            },
+            "description": "Delete a product by ID. Returns 204 on success."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Search — all products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"]
+            },
+            "description": "No filters — returns all products with pagination metadata."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — by title",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?title=Widget",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "Widget",
+                  "description": "Case-insensitive partial match"
+                }
+              ]
+            },
+            "description": "Seeded data: returns Widget Pro and Widget Basic."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — by SKU",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?sku=WDG-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "sku",
+                  "value": "WDG-001"
+                }
+              ]
+            },
+            "description": "Case-insensitive partial SKU match."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — by price range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?min_price=20&max_price=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "min_price",
+                  "value": "20"
+                },
+                {
+                  "key": "max_price",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Products with price >= min_price AND <= max_price."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — by category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?category_id=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "description": "Electronics — seeded category"
+                }
+              ]
+            },
+            "description": "Products directly in category 1 (Electronics). Does not include subcategory products."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — combined filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?title=Widget&category_id=1&min_price=15",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "Widget"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1"
+                },
+                {
+                  "key": "min_price",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "All filters combine with AND logic."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — sort and paginate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?sort_by=price&sort_order=desc&limit=2&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "sort_by",
+                  "value": "price",
+                  "description": "title | price | sku"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "description": "asc | desc"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Sort by price descending, return first 2 results."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — no matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?title=nonexistent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "nonexistent"
+                }
+              ]
+            },
+            "description": "Returns empty items array with total=0."
+          },
+          "response": []
+        },
+        {
+          "name": "Search — unknown category (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?category_id=999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "999"
+                }
+              ]
+            },
+            "description": "Returns 400 Category not found."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
