@@ -5,12 +5,31 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.schemas.category import CategorySummary
 
 class ProductCreate(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "title": "Widget Pro",
+                    "sku": "WDG-001",
+                    "price": "29.99",
+                    "category_id": 1,
+                    "description": "Premium widget",
+                }
+            ]
+        }
+    )
+
     title: str = Field(min_length=3, max_length=255)
     description: str | None = Field(default=None, min_length=5, max_length=2048)
     image: str | None = Field(default=None, max_length=2048)
     sku: str = Field(min_length=1, max_length=255)
-    price: Decimal = Field(gt=0, decimal_places=2, max_digits=10)
-    category_id: int = Field(gt=0)
+    price: Decimal = Field(
+        gt=0,
+        decimal_places=2,
+        max_digits=10,
+        examples=["29.99"],
+    )
+    category_id: int = Field(gt=0, examples=[1])
 
     @field_validator("title")
     @classmethod
@@ -29,11 +48,28 @@ class ProductCreate(BaseModel):
         return self
 
 class ProductUpdate(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "title": "Widget Pro v2",
+                    "price": "34.99",
+                }
+            ]
+        }
+    )
+
     title: str | None = Field(default=None, min_length=3, max_length=255)
     description: str | None = Field(default=None, min_length=5, max_length=2048)
     image: str | None = Field(default=None, max_length=2048)
     sku: str | None = Field(default=None, min_length=1, max_length=255)
-    price: Decimal | None = Field(default=None, gt=0, decimal_places=2, max_digits=10)
+    price: Decimal | None = Field(
+        default=None,
+        gt=0,
+        decimal_places=2,
+        max_digits=10,
+        examples=["34.99"],
+    )
     category_id: int | None = Field(default=None, gt=0)
 
     @field_validator("title")
@@ -76,8 +112,20 @@ class ProductSearchParams(BaseModel):
 
     title: str | None = Field(default=None, min_length=1, max_length=255)
     sku: str | None = Field(default=None, min_length=1, max_length=255)
-    min_price: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=2)
-    max_price: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=2)
+    min_price: Decimal | None = Field(
+        default=None,
+        ge=0,
+        max_digits=10,
+        decimal_places=2,
+        examples=["20.00"],
+    )
+    max_price: Decimal | None = Field(
+        default=None,
+        ge=0,
+        max_digits=10,
+        decimal_places=2,
+        examples=["50.00"],
+    )
     category_id: int | None = Field(default=None, gt=0)
     sort_by: Literal["title", "price", "sku"] = "title"
     sort_order: Literal["asc", "desc"] = "asc"
