@@ -1,8 +1,31 @@
 from decimal import Decimal
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, field_validator, model_validator
 from app.schemas.category import CategorySummary
+
+Price = Annotated[
+    Decimal,
+    Field(gt=0, decimal_places=2, max_digits=10),
+    WithJsonSchema({"type": "string", "example": "29.99"}),
+]
+
+OptionalPrice = Annotated[
+    Decimal | None,
+    Field(default=None, gt=0, decimal_places=2, max_digits=10),
+    WithJsonSchema({"type": "string", "example": "34.99", "nullable": True}),
+]
+
+PriceFilter = Annotated[
+    Decimal,
+    Field(ge=0, max_digits=10, decimal_places=2),
+    WithJsonSchema({"type": "string", "example": "20.00", "nullable": True}),
+]
+
+PriceRead = Annotated[
+    Decimal,
+    WithJsonSchema({"type": "string", "example": "29.99"}),
+]
 
 class ProductCreate(BaseModel):
     model_config = ConfigDict(
@@ -23,12 +46,7 @@ class ProductCreate(BaseModel):
     description: str | None = Field(default=None, min_length=5, max_length=2048)
     image: str | None = Field(default=None, max_length=2048)
     sku: str = Field(min_length=1, max_length=255)
-    price: Decimal = Field(
-        gt=0,
-        decimal_places=2,
-        max_digits=10,
-        examples=["29.99"],
-    )
+    price: Price
     category_id: int = Field(gt=0, examples=[1])
 
     @field_validator("title")
@@ -63,13 +81,7 @@ class ProductUpdate(BaseModel):
     description: str | None = Field(default=None, min_length=5, max_length=2048)
     image: str | None = Field(default=None, max_length=2048)
     sku: str | None = Field(default=None, min_length=1, max_length=255)
-    price: Decimal | None = Field(
-        default=None,
-        gt=0,
-        decimal_places=2,
-        max_digits=10,
-        examples=["34.99"],
-    )
+    price: OptionalPrice
     category_id: int | None = Field(default=None, gt=0)
 
     @field_validator("title")
@@ -102,7 +114,7 @@ class ProductRead(BaseModel):
     description: str | None
     image: str | None
     sku: str
-    price: Decimal
+    price: PriceRead
     category_id: int
     category: CategorySummary
 
@@ -112,20 +124,8 @@ class ProductSearchParams(BaseModel):
 
     title: str | None = Field(default=None, min_length=1, max_length=255)
     sku: str | None = Field(default=None, min_length=1, max_length=255)
-    min_price: Decimal | None = Field(
-        default=None,
-        ge=0,
-        max_digits=10,
-        decimal_places=2,
-        examples=["20.00"],
-    )
-    max_price: Decimal | None = Field(
-        default=None,
-        ge=0,
-        max_digits=10,
-        decimal_places=2,
-        examples=["50.00"],
-    )
+    min_price: PriceFilter | None = None
+    max_price: PriceFilter | None = None
     category_id: int | None = Field(default=None, gt=0)
     sort_by: Literal["title", "price", "sku"] = "title"
     sort_order: Literal["asc", "desc"] = "asc"
