@@ -10,6 +10,7 @@ from app.schemas.product import ProductCreate, ProductUpdate, ProductRead
 
 router = APIRouter(prefix="/api/v1/products", tags=["products"])
 
+
 def _load_product(db: Session, product_id: int) -> Product | None:
     stmt = (
         select(Product)
@@ -56,5 +57,76 @@ def create_product(data: ProductCreate, db: Session = Depends(get_db)):
             detail="Product with this SKU already exists",
         )
 
+    db.refresh(product)
     loaded = _load_product(db, product.id)
-    return loaded        
+    return loaded
+
+@router.get("/search", response_model=list[ProductRead])
+def search_products(db: Session = Depends(get_db)):
+    return []
+
+@router.get("/", response_model=list[ProductRead])
+def list_products(db: Session = Depends(get_db)):
+    return _load_products_with_categories(db)
+
+@router.get("/{product_id}", response_model=ProductRead)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = _load_product(db, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+    return product
+
+@router.patch("/{product_id}", response_model=ProductRead)
+def update_product(
+    product_id: int,
+    data: ProductUpdate,
+    db: Session = Depends(get_db),
+):
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    updates = data.model_dump(exclude_unset=True)
+
+    if "category_id" in updates and updates["category_id"] is not None:
+        _validate_category(db, updates["category_id"])
+
+    final_price = updates.get("price", product.price)
+    if "description" in updates:
+        final_description = updates["description"]
+    else:
+        final_description = product.description
+    _validate_expensive_product_description(final_price, final_description)
+
+    for field, value in updates.items():
+        setattr(product, field, value)
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Product with this SKU already exists",
+        )
+
+    loaded = _load_product(db, product_id)
+    return loaded
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
+        )
+
+    db.delete(product)
+    db.commit()

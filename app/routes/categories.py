@@ -70,6 +70,10 @@ def create_category(data: CategoryCreate, db: Session = Depends(get_db)):
     loaded = _load_category(db, category.id)
     return loaded
 
+@router.get("/", response_model=list[CategorySummary])
+def list_categories(db: Session = Depends(get_db)):
+    return db.scalars(select(Category).order_by(Category.name)).all()
+
 @router.get("/{category_id}", response_model=CategoryRead)
 def get_category(category_id: int, db: Session = Depends(get_db)):
     category = _load_category(db, category_id)
@@ -79,10 +83,6 @@ def get_category(category_id: int, db: Session = Depends(get_db)):
             detail="Category not found",
         )
     return category
-
-@router.get("/", response_model=list[CategorySummary])
-def list_categories(db: Session = Depends(get_db)):
-    return db.scalars(select(Category).order_by(Category.name)).all()
 
 @router.patch("/{category_id}", response_model=CategoryRead)
 def update_category(
