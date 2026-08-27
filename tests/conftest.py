@@ -7,7 +7,7 @@ from sqlalchemy.pool import StaticPool
 from app.database import Base, get_db
 from app.models.category import Category
 from app.models.product import Product
-from main import app
+from main import app as fastapi_app
 import app.models.category
 import app.models.product
 
@@ -40,12 +40,12 @@ def client(db):
         finally:
             pass
 
-    app.dependency_overrides[get_db] = override_get_db
+    fastapi_app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(app) as test_client:
+    with TestClient(fastapi_app) as test_client:
         yield test_client
 
-    app.dependency_overrides.clear()
+    fastapi_app.dependency_overrides.clear()
 
 
 @pytest.fixture
