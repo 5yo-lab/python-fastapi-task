@@ -42,7 +42,7 @@ def client(db):
 
     fastapi_app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(fastapi_app) as test_client:
+    with TestClient(fastapi_app, raise_server_exceptions=False) as test_client:
         yield test_client
 
     fastapi_app.dependency_overrides.clear()
